@@ -1,0 +1,35 @@
+version: '3'
+
+services:
+  postgres:
+    image: postgres
+    container_name: logistics-postgres
+    environment:
+      POSTGRES_DB: logistics
+      POSTGRES_USER: logistics
+      POSTGRES_PASSWORD: logistics
+    ports:
+      - "5432:5432"
+
+  spring-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: logistics-app
+    depends_on:
+      - postgres
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/logistics
+      SPRING_DATASOURCE_USERNAME: logistics
+      SPRING_DATASOURCE_PASSWORD: logistics
+      SPRING_JPA_PROPERTIES_HIBERNATE_JDBC_LOB_NON_CONTEXTUAL_CREATION: "true"
+      SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: org.hibernate.dialect.PostgreSQLDialect
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      LOGISTICS_APP_JWTSECRET: logisticsSecretKey
+      LOGISTICS_APP_JWTEXPIRATIONMS: 86400000
+      LOGISTICS_APP_JWTREFRESHEXPIRATIONMS: 86400000
+      SERVER_TOMCAT_REMOTE_IP_HEADER: x-forwarded-for
+      SERVER_TOMCAT_PROTOCOL_HEADER: x-forwarded-proto
+      SERVER_PORT: 8080
